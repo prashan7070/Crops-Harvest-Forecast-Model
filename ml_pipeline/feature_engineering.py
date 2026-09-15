@@ -138,3 +138,28 @@ def encode_features(
 
     return train_enc, val_enc, test_enc, encoder
 
+
+def split_temporal_data(
+    df: pd.DataFrame,
+    train_max_year: int = TRAIN_MAX_YEAR,
+    val_max_year: int = VAL_MAX_YEAR,
+    test_max_year: int = TEST_MAX_YEAR
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Split dataset chronologically to prevent temporal data leakage.
+
+    Split boundaries:
+    - Train: Year <= train_max_year (e.g. 2000 - 2017)
+    - Validation: train_max_year < Year <= val_max_year (e.g. 2018 - 2020)
+    - Test: val_max_year < Year <= test_max_year (e.g. 2021 - 2023)
+    """
+    train_df = df[(df["Year"] <= train_max_year) & (df["Year"] >= 2000)].copy()
+    val_df = df[(df["Year"] > train_max_year) & (df["Year"] <= val_max_year)].copy()
+    test_df = df[(df["Year"] > val_max_year) & (df["Year"] <= test_max_year)].copy()
+
+    logger.info(
+        f"Temporal Splits created: Train={len(train_df):,} rows (<= {train_max_year}), "
+        f"Val={len(val_df):,} rows ({train_max_year + 1}-{val_max_year}), "
+        f"Test={len(test_df):,} rows ({val_max_year + 1}-{test_max_year})"
+    )
+    return train_df, val_df, test_df
+
