@@ -62,3 +62,27 @@ def clean_year_string(val: Any) -> Optional[int]:
     except ValueError:
         return None
 
+
+def filter_aggregate_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter out national summary rows and aggregate season totals.
+
+    Args:
+        df: Input DataFrame.
+
+    Returns:
+        DataFrame containing only district-level and single-season records.
+    """
+    initial_count = len(df)
+    aggregates = ["national total", "island total", "total", "all districts"]
+
+    # Filter out district aggregate rows
+    df_clean = df[~df["District"].astype(str).str.lower().str.strip().isin(aggregates)].copy()
+
+    # Filter out season totals ('Total' represents sum of Maha and Yala)
+    df_clean = df_clean[df_clean["Season"].astype(str).str.lower().str.strip().isin(["maha", "yala"])].copy()
+
+    filtered_count = initial_count - len(df_clean)
+    logger.info(f"Filtered out {filtered_count:,} aggregate rows (remaining: {len(df_clean):,}).")
+    return df_clean
+
+
