@@ -47,6 +47,7 @@ frontend/yarn-error.log*
 Thumbs.db
 
 # IDE & Editor
-.vscode/
 .idea/
 *.swp
+config.bat
+node_modules
