@@ -105,3 +105,39 @@ def time_series_cv(
         "cv_mae_mean": round(float(np.mean(mae_list)), 2),
         "cv_r2_mean": round(float(np.mean(r2_list)), 4)
     }
+
+def train_and_evaluate(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    test_df: pd.DataFrame
+) -> Tuple[Any, Dict[str, Any]]:
+    """Train XGBoost model and evaluate across Test sets.
+
+    Returns:
+        Tuple of (fitted_model, test_metrics).
+    """
+    model = get_model()
+
+    X_train = train_df[FEATURE_COLS]
+    y_train = train_df[TARGET_COL]
+    X_test = test_df[FEATURE_COLS]
+    y_test = test_df[TARGET_COL]
+
+    logger.info("Training XGBoost Regressor...")
+    model.fit(X_train, y_train)
+
+    logger.info("Evaluating on Holdout Test set...")
+    test_preds = model.predict(X_test)
+    test_metrics = compute_metrics(y_test.values, test_preds)
+
+    return model, test_metrics
+
+
+if __name__ == "__main__":
+    df = pd.read_csv(ENGINEERED_FEATURES_PATH)
+    from ml_pipeline.feature_engineering import split_temporal_data
+    tr, va, te = split_temporal_data(df)
+    model, test_metrics = train_and_evaluate(tr, va, te)
+    print("\n--- Final Test Set Results ---")
+    print(f"RMSE: {test_metrics['rmse']} MT")
+    print(f"R²:   {test_metrics['r2']}")
