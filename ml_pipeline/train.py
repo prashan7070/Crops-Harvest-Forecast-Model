@@ -53,3 +53,55 @@ def get_model(random_state: int = RANDOM_STATE) -> Any:
         random_state=random_state,
         n_jobs=-1
     )
+
+def time_series_cv(
+    model: Any,
+    train_df: pd.DataFrame,
+    n_splits: int = 5
+) -> Dict[str, float]:
+    """Execute expanding-window Time-Series Cross-Validation across the Year dimension.
+
+    Folds expand chronologically:
+    Fold 1: Train 2000-2005 -> Val 2006-2008
+    Fold 2: Train 2000-2008 -> Val 2009-2011
+    Fold 3: Train 2000-2011 -> Val 2012-2013
+    Fold 4: Train 2000-2013 -> Val 2014-2015
+    Fold 5: Train 2000-2015 -> Val 2016-2017
+    """
+    years = sorted(train_df["Year"].unique())
+    min_year, max_year = years[0], years[-1]
+    
+    # 5 expanding window test slices
+    val_slices = [
+        (min_year, 2005, 2006, 2008),
+        (min_year, 2008, 2009, 2011),
+        (min_year, 2011, 2012, 2013),
+        (min_year, 2013, 2014, 2015),
+        (min_year, 2015, 2016, 2017),
+    ]
+
+    rmse_list, mae_list, r2_list = [], [], []
+
+    for tr_start, tr_end, val_start, val_end in val_slices:
+        fold_train = train_df[(train_df["Year"] >= tr_start) & (train_df["Year"] <= tr_end)]
+        fold_val = train_df[(train_df["Year"] >= val_start) & (train_df["Year"] <= val_end)]
+
+        X_tr = fold_train[FEATURE_COLS]
+        y_tr = fold_train[TARGET_COL]
+        X_v = fold_val[FEATURE_COLS]
+        y_v = fold_val[TARGET_COL]
+
+        model.fit(X_tr, y_tr)
+        preds = model.predict(X_v)
+        metrics = compute_metrics(y_v.values, preds)
+
+        rmse_list.append(metrics["rmse"])
+        mae_list.append(metrics["mae"])
+        r2_list.append(metrics["r2"])
+
+    return {
+        "cv_rmse_mean": round(float(np.mean(rmse_list)), 2),
+        "cv_rmse_std": round(float(np.std(rmse_list)), 2),
+        "cv_mae_mean": round(float(np.mean(mae_list)), 2),
+        "cv_r2_mean": round(float(np.mean(r2_list)), 4)
+    }
