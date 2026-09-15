@@ -86,3 +86,49 @@ def filter_aggregate_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df_clean
 
 
+def handle_anomalies_and_impute(df: pd.DataFrame) -> pd.DataFrame:
+    """Handle impossible biological records and perform group-median imputation.
+
+    Agronomic Rule:
+    - Extent == 0 and Production > 0: Biologically impossible; set Production to NaN.
+    - Extent > 0 and Production == 0: Valid crop failure scenario; preserved.
+
+    Group-median imputation:
+    - Impute missing values based on (District, Crop, Season) cohorts.
+    - Fallback to (Crop, Season) median, then global Crop median.
+
+    Args:
+        df: DataFrame with cleaned numeric columns.
+
+    Returns:
+        Imputed DataFrame.
+    """
+    df_out = df.copy()
+
+    # Rule 1: Zero extent with positive production
+    mask_impossible = (df_out["Extent"] == 0) & (df_out["Production"] > 0)
+    if mask_impossible.sum() > 0:
+        logger.info(f"Identified {mask_impossible.sum()} impossible records (Extent=0, Production>0). Setting Production to NaN.")
+        df_out.loc[mask_impossible, "Production"] = np.nan
+
+    # Group-wise median imputation
+    cohort_cols = ["District", "Crop", "Season"]
+    for col in ["Extent", "Production"]:
+        # 1st level: District + Crop + Season median
+        median_cohort = df_out.groupby(cohort_cols)[col].transform("median")
+        df_out[col] = df_out[col].fillna(median_cohort)
+
+        # 2nd level: Crop + Season median
+        median_crop_season = df_out.groupby(["Crop", "Season"])[col].transform("median")
+        df_out[col] = df_out[col].fillna(median_crop_season)
+
+        # 3rd level: Global Crop median
+        median_crop = df_out.groupby("Crop")[col].transform("median")
+        df_out[col] = df_out[col].fillna(median_crop)
+
+        # 4th level: Global column median if any still remain
+        df_out[col] = df_out[col].fillna(df_out[col].median())
+
+    return df_out
+
+
