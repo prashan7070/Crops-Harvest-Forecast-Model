@@ -163,3 +163,45 @@ def split_temporal_data(
     )
     return train_df, val_df, test_df
 
+
+def run_feature_engineering(
+    cleaned_path: Path = CLEANED_DATA_PATH,
+    output_path: Optional[Path] = ENGINEERED_FEATURES_PATH
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, TargetEncoder]:
+    """Execute complete feature engineering pipeline."""
+    logger.info(f"Loading cleaned data from {cleaned_path}...")
+    df = pd.read_csv(cleaned_path)
+
+    # 1. Compute Yield Ratios
+    df = compute_yield_ratios(df)
+
+    # 2. Create Temporal Lags and Rolling Statistics
+    df = create_temporal_features(df)
+
+    # 3. Chronological Train/Val/Test Split
+    train_df, val_df, test_df = split_temporal_data(df)
+
+    # 4. Target and Categorical Encoding
+    train_df, val_df, test_df, encoder = encode_features(train_df, val_df, test_df)
+
+    # Combine back for comprehensive export
+    full_df = pd.concat([train_df, val_df, test_df], ignore_index=True)
+
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        full_df.to_csv(output_path, index=False)
+        logger.info(f"Saved feature-engineered dataset to {output_path} ({len(full_df):,} rows).")
+
+    return train_df, val_df, test_df, encoder
+
+
+if __name__ == "__main__":
+    train_df, val_df, test_df, encoder = run_feature_engineering()
+    print("\n--- Feature Engineering Summary ---")
+    print(f"Train Shape: {train_df.shape}")
+    print(f"Val Shape: {val_df.shape}")
+    print(f"Test Shape: {test_df.shape}")
+    print("Engineered Features Sample:")
+    print(train_df[["District", "Crop", "Season", "Year", "Extent", "Production", "Crop_Yield", "Production_Lag_1Y", "District_TargetEnc", "Crop_TargetEnc"]].head())
+
+
