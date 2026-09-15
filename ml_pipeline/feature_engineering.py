@@ -67,3 +67,38 @@ def create_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df_out["Extent_RollStd_3Y"] = grouped["Extent"].transform(lambda x: x.rolling(3, min_periods=1).std()).fillna(0.0)
 
     return df_out
+
+
+class TargetEncoder:
+    """Smoothed Out-of-Fold Target Encoder preventing data leakage.
+
+    Formula: S_i = (n * y_cat + m * y_global) / (n + m)
+    where m is the smoothing parameter (default = 10.0).
+    """
+    def __init__(self, cols: list, smoothing: float = 10.0):
+        self.cols = cols
+        self.smoothing = smoothing
+        self.mappings_: Dict[str, Dict[str, float]] = {}
+        self.global_mean_: float = 0.0
+
+    def fit(self, X: pd.DataFrame, y: pd.Series):
+        self.global_mean_ = float(y.mean())
+        for col in self.cols:
+            grouped = y.groupby(X[col])
+            counts = grouped.count()
+            means = grouped.mean()
+            smoothed = (counts * means + self.smoothing * self.global_mean_) / (counts + self.smoothing)
+            self.mappings_[col] = smoothed.to_dict()
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X_out = X.copy()
+        for col in self.cols:
+            mapping = self.mappings_.get(col, {})
+            encoded_col_name = f"{col}_TargetEnc"
+            X_out[encoded_col_name] = X_out[col].map(mapping).fillna(self.global_mean_)
+        return X_out
+
+    def fit_transform(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+        self.fit(X, y)
+        return self.transform(X)
