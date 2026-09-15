@@ -132,3 +132,74 @@ def handle_anomalies_and_impute(df: pd.DataFrame) -> pd.DataFrame:
     return df_out
 
 
+def preprocess_raw_data(raw_path: Path = RAW_DATA_PATH, save_path: Optional[Path] = CLEANED_DATA_PATH) -> pd.DataFrame:
+    """Run full data cleaning pipeline and optionally save the processed CSV.
+
+    Args:
+        raw_path: Path to researchData.xlsx.
+        save_path: Path to output cleaned CSV.
+
+    Returns:
+        Cleaned pd.DataFrame.
+    """
+    from ml_pipeline.data_ingestion import load_raw_data
+
+    logger.info("Executing raw data preprocessing pipeline...")
+    df = load_raw_data(raw_path)
+
+    # 1. Filter aggregate summary rows
+    df = filter_aggregate_rows(df)
+
+    # 2. Clean numeric strings
+    df["Extent"] = df["Extent"].apply(clean_numeric_string)
+    df["Production"] = df["Production"].apply(clean_numeric_string)
+
+    # 3. Clean Year
+    df["Year"] = df["Year"].apply(clean_year_string)
+    df = df.dropna(subset=["Year"]).copy()
+    df["Year"] = df["Year"].astype(int)
+
+    # 4. Standardize text casing and strip whitespace
+    df["District"] = df["District"].astype(str).str.strip()
+    # Normalize spelling variations (e.g., 'Monaragala' vs 'Moneragala', 'Hanbantota' vs 'Hambantota')
+    district_corrections = {
+        "Monaragala": "Moneragala",
+        "Hanbantota": "Hambantota",
+        "Kaluthara": "Kalutara"
+    }
+    df["District"] = df["District"].replace(district_corrections)
+
+    df["Season"] = df["Season"].astype(str).str.strip().str.capitalize()
+    df["CropCategory"] = df["CropCategory"].astype(str).str.strip()
+    df["Crop"] = df["Crop"].astype(str).str.strip()
+
+    # Normalize Crop naming (e.g., 'Chillies (Green)' -> 'Chili')
+    crop_corrections = {
+        "Chillies (Green)": "Chili",
+        "Sweet Potatoes": "Sweet Potato",
+        "Potatoes": "Potato",
+        "Manioc": "Cassava"
+    }
+    df["Crop"] = df["Crop"].replace(crop_corrections)
+
+    # 5. Handle anomalies and impute missing values
+    df = handle_anomalies_and_impute(df)
+
+    if save_path:
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(save_path, index=False)
+        logger.info(f"Cleaned dataset saved successfully to {save_path} ({len(df):,} records).")
+
+    return df
+
+
+if __name__ == "__main__":
+    df_cleaned = preprocess_raw_data()
+    print("\n--- Cleaned Data Sample ---")
+    print(df_cleaned.head())
+    print("\nCleaned summary:")
+    print(f"Total Rows: {len(df_cleaned):,}")
+    print(f"Districts ({df_cleaned['District'].nunique()}): {sorted(df_cleaned['District'].unique())}")
+    print(f"Crops ({df_cleaned['Crop'].nunique()})")
+    print(f"Years: {df_cleaned['Year'].min()} - {df_cleaned['Year'].max()}")
+
