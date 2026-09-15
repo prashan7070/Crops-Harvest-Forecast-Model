@@ -102,3 +102,39 @@ class TargetEncoder:
     def fit_transform(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
         self.fit(X, y)
         return self.transform(X)
+
+
+def encode_features(
+    train_df: pd.DataFrame,
+    val_df: Optional[pd.DataFrame] = None,
+    test_df: Optional[pd.DataFrame] = None,
+    target_col: str = "Production"
+) -> Tuple[pd.DataFrame, Optional[pd.DataFrame], Optional[pd.DataFrame], TargetEncoder]:
+    """Encode categorical features (District, Crop, Season) and apply log target transformation.
+
+    Season is binary one-hot encoded (Maha=1, Yala=0).
+    District and Crop are smoothed target encoded using only the training split.
+    """
+    # Season binary encoding
+    def apply_season_encoding(df: pd.DataFrame) -> pd.DataFrame:
+        df_encoded = df.copy()
+        df_encoded["Season_Maha"] = (df_encoded["Season"].str.lower() == "maha").astype(int)
+        df_encoded["Log_Production"] = np.log1p(df_encoded[target_col].clip(lower=0))
+        return df_encoded
+
+    train_enc = apply_season_encoding(train_df)
+    val_enc = apply_season_encoding(val_df) if val_df is not None else None
+    test_enc = apply_season_encoding(test_df) if test_df is not None else None
+
+    # Fit target encoder strictly on training data
+    encoder = TargetEncoder(cols=["District", "Crop"], smoothing=10.0)
+    encoder.fit(train_enc, train_enc[target_col])
+
+    train_enc = encoder.transform(train_enc)
+    if val_enc is not None:
+        val_enc = encoder.transform(val_enc)
+    if test_enc is not None:
+        test_enc = encoder.transform(test_enc)
+
+    return train_enc, val_enc, test_enc, encoder
+
