@@ -161,3 +161,38 @@ class CropForecasterPipeline:
     def predict_batch(self, items: list) -> list:
         """Batch inference for multiple planning scenarios."""
         return [self.predict_single(**item) for item in items]
+
+def build_and_export_production_pipeline(
+    engineered_path: Path = ENGINEERED_FEATURES_PATH,
+    pipeline_out: Path = PIPELINE_EXPORT_PATH,
+    metadata_out: Path = MODEL_METADATA_PATH
+) -> CropForecasterPipeline:
+    """End-to-end routine to train, package, and serialize the inference pipeline."""
+    logger.info(f"Loading engineered features from {engineered_path}...")
+    df = pd.read_csv(engineered_path)
+    train_df, val_df, test_df = split_temporal_data(df)
+
+    # Combine Train + Val for final model fitting before test evaluation
+    train_val_df = pd.concat([train_df, val_df], ignore_index=True)
+    champion_model = get_model()
+    
+    champion_model.fit(train_val_df[FEATURE_COLS], train_val_df[TARGET_COL])
+
+    # Evaluate on Holdout Test Set (2021-2023)
+    test_preds = champion_model.predict(test_df[FEATURE_COLS])
+    test_metrics = compute_metrics(test_df[TARGET_COL].values, test_preds)
+    logger.info(f"Final Champion Test Metrics: {test_metrics}")
+
+    # Extract target encoding maps & cohort history
+    district_enc_map = train_df.groupby("District")["District_TargetEnc"].mean().to_dict()
+    crop_enc_map = train_df.groupby("Crop")["Crop_TargetEnc"].mean().to_dict()
+    global_mean = float(train_df[TARGET_COL].mean())
+
+    cohort_history = {}
+    for (d, c, s), group in df.groupby(["District", "Crop", "Season"]):
+        cohort_history[(d, c, s)] = {
+            "prod_lag": float(group["Production"].iloc[-1]) if len(group) > 0 else global_mean,
+            "yield_lag": float(group["Crop_Yield"].iloc[-1]) if len(group) > 0 else 5.0,
+            "ext_roll_mean": float(group["Extent"].tail(3).mean()) if len(group) > 0 else 100.0,
+            "ext_roll_std": float(group["Extent"].tail(3).std()) if len(group) > 1 and not np.isnan(group["Extent"].tail(3).std()) else 0.0
+        }
