@@ -196,3 +196,28 @@ def build_and_export_production_pipeline(
             "ext_roll_mean": float(group["Extent"].tail(3).mean()) if len(group) > 0 else 100.0,
             "ext_roll_std": float(group["Extent"].tail(3).std()) if len(group) > 1 and not np.isnan(group["Extent"].tail(3).std()) else 0.0
         }
+
+    # 5. Construct Metadata Dictionary
+    metadata = {
+        "model_name": "CropForecastLK Production Forecaster",
+        "model_type": "XGBoost Regressor (Optuna Tuned)",
+        "version": "1.0.0",
+        "trained_at": datetime.utcnow().isoformat() + "Z",
+        "metrics": {
+            "test_rmse": test_metrics["rmse"],
+            "test_mae": test_metrics["mae"],
+            "test_r2": test_metrics["r2"]
+        },
+        "supported_highland_districts": HIGHLAND_DISTRICTS,
+        "supported_crops": TARGET_CROPS,
+        "all_districts": sorted(df["District"].unique().tolist()),
+        "all_crops": sorted(df["Crop"].unique().tolist()),
+        "seasons": ["Yala", "Maha"],
+        "features": FEATURE_COLS
+    }
+
+    # Save model metadata
+    metadata_out.parent.mkdir(parents=True, exist_ok=True)
+    with open(metadata_out, "w") as f:
+        json.dump(metadata, f, indent=4)
+    logger.info(f"Saved model metadata to {metadata_out}")
