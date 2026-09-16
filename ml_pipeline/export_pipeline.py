@@ -221,3 +221,35 @@ def build_and_export_production_pipeline(
     with open(metadata_out, "w") as f:
         json.dump(metadata, f, indent=4)
     logger.info(f"Saved model metadata to {metadata_out}")
+
+    # 6. Package Production Pipeline
+    pipeline = CropForecasterPipeline(
+        model=champion_model,
+        district_enc_map=district_enc_map,
+        crop_enc_map=crop_enc_map,
+        global_target_mean=global_mean,
+        cohort_history=cohort_history,
+        feature_names=FEATURE_COLS,
+        metadata=metadata
+    )
+
+    # 7. Serialize Pipeline Artifact
+    pipeline_out.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(pipeline, pipeline_out)
+    logger.info(f"Production pipeline successfully serialized to {pipeline_out}")
+
+    return pipeline
+
+
+if __name__ == "__main__":
+    pipeline = build_and_export_production_pipeline()
+    # Smoke test single prediction
+    sample_res = pipeline.predict_single(
+        district="Nuwara Eliya",
+        season="Maha",
+        crop="Potato",
+        extent_ha=500.0,
+        year=2024
+    )
+    print("\n--- Smoke Test Prediction ---")
+    print(json.dumps(sample_res, indent=2))
