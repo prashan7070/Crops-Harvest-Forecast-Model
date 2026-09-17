@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Curated HSL Color Tokens - Light Green & White Agricultural Theme */
+  --bg-main: hsl(150, 40%, 98%);
+  --bg-card: hsla(0, 0%, 100%, 0.9);
+  --bg-card-hover: hsla(0, 0%, 100%, 1);
+  --bg-glass-subtle: hsla(154, 30%, 95%, 0.8);
+  
+  --border-glass: hsla(154, 20%, 80%, 0.5);
+  --border-focus: hsla(154, 75%, 45%, 0.8);
+
+  /* Agricultural Emerald & Monsoonal Accents */
+  --primary-emerald: hsl(154, 75%, 35%);
+  --primary-emerald-hover: hsl(154, 75%, 28%);
+  --primary-glow: hsla(154, 75%, 48%, 0.15);
+  
+  --accent-cyan: hsl(192, 85%, 40%);
+  --accent-cyan-glow: hsla(192, 85%, 40%, 0.15);
+  
+  --accent-amber: hsl(42, 92%, 45%);
+  --accent-amber-glow: hsla(42, 92%, 45%, 0.15);
+
+  --accent-purple: hsl(265, 85%, 55%);
+
+  /* Typography */
+  --text-primary: hsl(150, 20%, 15%);
+  --text-secondary: hsl(150, 15%, 35%);
+  --text-muted: hsl(150, 10%, 55%);
+
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 1px 1px var(--border-glass);
+  --shadow-glow: 0 0 25px var(--primary-glow);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 15%, hsla(154, 75%, 48%, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 85% 20%, hsla(192, 85%, 52%, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, hsla(265, 85%, 66%, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(222, 20%, 25%);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-emerald);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+/* Utility Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px var(--primary-glow); }
+  50% { box-shadow: 0 0 30px hsla(154, 75%, 48%, 0.45); }
+}
+
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Glassmorphic Container & Card Styles */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+  border-color: hsla(215, 25%, 45%, 0.45);
+}
+
+.glass-panel-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 1px 1px hsla(154, 75%, 48%, 0.3);
+}
+
+/* Form Controls */
+.input-control {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.input-control:focus {
+  border-color: var(--primary-emerald);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.select-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.1em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, hsl(154, 75%, 40%) 0%, hsl(164, 80%, 35%) 100%);
+  color: white;
+  box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, hsl(154, 75%, 45%) 0%, hsl(164, 80%, 40%) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px hsla(154, 75%, 48%, 0.3);
+}
+
+.btn-secondary {
+  background: hsla(154, 20%, 95%, 0.8);
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+}
+
+.btn-secondary:hover {
+  background: hsla(154, 20%, 90%, 1);
+  border-color: var(--text-secondary);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-emerald {
+  background: hsla(154, 75%, 48%, 0.15);
+  color: var(--primary-emerald);
+  border: 1px solid hsla(154, 75%, 48%, 0.35);
+}
+
+.badge-cyan {
+  background: hsla(192, 85%, 52%, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid hsla(192, 85%, 52%, 0.35);
+}
+
+.badge-amber {
+  background: hsla(42, 92%, 55%, 0.15);
+  color: var(--accent-amber);
+  border: 1px solid hsla(42, 92%, 55%, 0.35);
+}
+
+/* Grid Layouts */
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.grid-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 960px) {
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
