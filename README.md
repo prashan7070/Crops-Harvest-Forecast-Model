@@ -86,10 +86,10 @@ This project was developed strictly adhering to industry-standard Git Flow and b
 
 | Order | Member Name | Student ID | Phase 3 Branch Name | Core Responsibilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **1st** | **Prashan** | `241711044` | `feature/frontend/setup-and-base` | Vite framework initialization, CSS architectures, and foundational package configuration. |
-| **2nd** | **Lahiru** | `241711074` | `feature/frontend/api-and-routes` | Axios integration, API routing mechanisms, and initial layout wrappers via layout components. |
-| **3rd** | **Prashan** | `241711044` | `feature/frontend/ui-implementation` | Implemented primary UI visual components including `PredictorCard` and Global `Navbar`. |
-| **4th** | **Lahiru** | `241711074` | `feature/frontend/analytics-assembly` | Built the complex `AllCropsPredictor` and `AnalyticsChart`, finalizing the `App.jsx` compilation. |
+| **1st** | **Prashan** | `241711044` | `feature/frontend/framework-setup` | Vite framework initialization, CSS architectures, and foundational package configuration. |
+| **2nd** | **Lahiru** | `241711074` | `feature/frontend//api-core` | Axios integration, API routing mechanisms, and initial layout wrappers via layout components. |
+| **3rd** | **Prashan** | `241711044` | `feature/frontend/layout-components` | Implemented primary UI visual components including `PredictorCard` and Global `Navbar`. |
+| **4th** | **Lahiru** | `241711074` | `feature/frontend/app-assembly` | Built the complex `AllCropsPredictor` and `AnalyticsChart`, finalizing the `App.jsx` compilation. |
 
 
 ---
