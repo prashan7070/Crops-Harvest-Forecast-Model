@@ -21,6 +21,28 @@ The project is structured as a modern Monorepo containing three distinct, decoup
 
 ---
 
+
+## 🧬 The 11-Step Machine Learning Lifecycle
+
+Our predictive engine is strictly serialized into an 11-step autonomous pipeline designed to prevent temporal data leakage and maximize feature richness:
+
+| Step | Lifecycle Phase | Technical Description |
+| :---: | :--- | :--- |
+| **1** | **Raw Data Ingestion** | Safely load and validate multi-sheet governmental Excel consensus data. |
+| **2** | **String Parsing & Sanitization** | Filter biological anomalies with highly-optimized regex string mapping. |
+| **3** | **Missing Value Imputation** | Calculate continuous aggregations for missing values across crop cohorts. |
+| **4** | **Agronomic Math Formulations** | Mathematically derive the true Yield capability (Metric Tons per Hectare). |
+| **5** | **Time-Series Lags (t-1)** | Generate historical (1-year prior) prior lags for Production/Yield variables. |
+| **6** | **Rolling Window Statistics** | Implement 3-year statistical moving averages for cultivated geographic Extent. |
+| **7** | **Chronological Splitting** | Hard-split (Train: ≤2017, Val: 2018-20, Test: 2021-23) to prevent future leakage. |
+| **8** | **Smoothed Target Encoding** | Map categorical districts and crop strains to normalized numeric representations. |
+| **9** | **Algorithm Benchmarking** | Compare Ridge, Random Forest, LightGBM, and XGBoost regressor structures. |
+| **10**| **Expanding-Window Cross-Val**| Evaluate models natively through progressive chronological shifting methodologies. |
+| **11**| **Bayesian Serialization** | Leverage Optuna (TPE) for hyperparameters, serializing the champion to `.joblib`. |
+
+---
+
+
 ## 👥 Team Members & Academic Contributions
 
 This project was developed strictly adhering to industry-standard Git Flow and branch chaining methodologies. The implementation responsibilities were divided among the group members as detailed below:
