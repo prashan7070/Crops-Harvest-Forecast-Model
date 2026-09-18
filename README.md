@@ -10,10 +10,10 @@
 By leveraging historical agronomic data, time-series lags, and a highly-tuned **XGBoost regression model**, this system provides actionable intelligence for agricultural planning, resource distribution, and food security forecasting.
 
 ### 👥 Team DataMinds
-* **Prashan** – `241711044`
-* **Visun** – `241711009`
-* **Lahiru** – `241711074`
-* **Sathindu** – `241711053`
+* **Prashan Anupama** – `241711044`
+* **Visun Prabodha** – `241711009`
+* **Lahiru Lakshan Sanjeewa** – `241711074`
+* **Sathindu Sathsara Kumara** – `241711053`
 
 ---
 
