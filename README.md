@@ -9,6 +9,12 @@
 
 By leveraging historical agronomic data, time-series lags, and a highly-tuned **XGBoost regression model**, this system provides actionable intelligence for agricultural planning, resource distribution, and food security forecasting.
 
+### 👥 Team DataMinds
+* **Prashan** – `241711044`
+* **Visun** – `241711009`
+* **Lahiru** – `241711074`
+* **Sathindu** – `241711053`
+
 ---
 
 ## 🏗️ System Architecture
@@ -108,15 +114,15 @@ python -m venv venv
 ### Module 1: Executing the ML Pipeline (Offline Training)
 If you wish to recalculate the agronomic formulas and re-train the XGBoost model from scratch:
 ```bash
-# 1. Install ML Dependencies
-pip install -r ml_pipeline/requirements.txt
+# 1. Install ML Dependencies (Forcing isolation)
+python -m pip install --ignore-installed -r ml_pipeline/requirements.txt
 
 # 2. Re-create the processed datasets (In sequence)
-python ml_pipeline/preprocessing.py
-python ml_pipeline/feature_engineering.py
+python -m ml_pipeline.preprocessing
+python -m ml_pipeline.feature_engineering
 
 # 3. Train algorithms and Export Production Artifacts
-python ml_pipeline/export_pipeline.py
+python -m ml_pipeline.export_pipeline
 
 # Ensure data/artifacts/crop_forecaster_pipeline.joblib has been successfully generated.
 ```
@@ -124,8 +130,8 @@ python ml_pipeline/export_pipeline.py
 ### Module 2: Booting the FastAPI Backend
 With the `.joblib` model successfully compiled, the server can be initialized:
 ```bash
-# 1. Install Backend Web Dependencies
-pip install -r backend/requirements.txt
+# 1. Install Backend Web Dependencies (Forcing isolation)
+python -m pip install --ignore-installed -r backend/requirements.txt
 
 # 2. Launch the Uvicorn ASGI Server
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
