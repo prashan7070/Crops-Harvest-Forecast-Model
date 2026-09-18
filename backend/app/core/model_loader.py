@@ -28,6 +28,11 @@ class ModelLoader:
             return
 
         logger.info(f"Loading ML pipeline from {model_path}...")
+
+        import __main__
+        from ml_pipeline.export_pipeline import CropForecasterPipeline
+        __main__.CropForecasterPipeline = CropForecasterPipeline
+
         self._pipeline = joblib.load(model_path)
 
         if metadata_path.exists():

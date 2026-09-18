@@ -3,6 +3,7 @@
 Responsible for loading and auditing the raw census agricultural records
 from the Department of Census and Statistics, Sri Lanka.
 """
+import utils.session
 import logging
 from pathlib import Path
 from typing import Dict, Any, Tuple
